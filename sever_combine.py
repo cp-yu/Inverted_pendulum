@@ -49,28 +49,47 @@ class MyCanvas(FigureCanvas):
 #                 self.__socket_net.send(str(cal_f).encode("utf-8"))
 #                 communication_flag=True
 class ThreadNetwork(QThread):
-    def __init__(self,socket_net,parent):
+    signal_connected=pyqtSignal()
+    def __init__(self,socket_net,rod,f):
         super().__init__()
         self.communication_wait_flag=True
         self.__socket_net = socket_net
-        self.parent=parent
+        self.__rod=rod
+        # self.__rodData=rodData
+        self.__f=f
+        # self.parent.rod.setAngle(5)
         pass
     def run(self):
         if(self.communication_wait_flag):
-            self.__connect2client=self.__socket_net.accept()
+            self.__connect2client,self.__addr=self.__socket_net.accept()
+            print("connection established: ",self.__addr)
+            # self.parent.rod.setAngle(5)
+            self.signal_connected.emit()
             self.communication_wait_flag=False
-        else:
-            while True:
-                data=self.parent.rodData[[0,1,3,4]]
-                self.__connect2client.send(str(data).encode("utf-8")) 
-                self.parent.f=float(self.__connect2client.recv(1024).decode())
+    
+        while not self.communication_wait_flag:
+            # data=self.__rodData[[0,1,3,4]]
+            data=self.__rod.getSendData()
+            # print("send data: ",data)
+            self.__connect2client.send(str(data).encode("utf-8")) 
+            recvData=self.__connect2client.recv(1024).decode()
+            if recvData=="reset":
+                self.__rod.reset()
+                self.__rod.setAngle(5)
+                self.__rod.setV(0.5)
+            else:
+
+                self.__f=float()
+                self.__rod.setF(self.__f)
+            sleep(0.01)
+            # print("recv f: ",self.__f)
 class ThreadRod(QThread):
     signal_data_update=pyqtSignal(str,float)
     signal_data_update_all=pyqtSignal(list)
     def __init__(self,rod,parent):
         super().__init__()
         self.__rod=rod
-        self.parent=parent
+        # self.parent=parent
     def run(self):
         while True:
             # self.f=
@@ -80,16 +99,17 @@ class ThreadRod(QThread):
             # print(data[3])
             self.signal_data_update_all.emit(data)
             # sleep(0.001)
+            # sleep(0.1)
 
 
 class MyWindow(QtWidgets.QWidget):
     signal_data_update=pyqtSignal(str,float)
     signal_data_update_all=pyqtSignal(list)
     # signal_net_connected=pyqtSignal(object) 
-    def __init__(self,rod,connection):
+    def __init__(self,rod,connection,t):
         QtWidgets.QWidget.__init__(self)
 
-        self.__rod=rod
+        self.rod=rod
         self.f=0 # 隐式使用
         self.rodData=[0,0,0,0,0,0] # 隐式使用
         
@@ -97,7 +117,7 @@ class MyWindow(QtWidgets.QWidget):
         # self.__connection=
         # self.__rodUpdate=ThreadRod(rod,parent=self)
         self.__rodUpdataT=QTimer(self)
-        self.__network=ThreadNetwork(connection,parent=self)
+        self.__network=ThreadNetwork(connection,self.rod,self.f)
 
         self.vector=[]
         self.velocity=[]
@@ -107,18 +127,22 @@ class MyWindow(QtWidgets.QWidget):
         self.__rodUpdataT.timeout.connect(self.updateRod)
         self.signal_data_update.connect(self.update_data)
         self.signal_data_update_all.connect(self.update_data_all)
+        self.__network.signal_connected.connect(self.networdConnected)
         # self.__rodUpdate.signal_data_update.connect(self.update_data)
         # self.__rodUpdate.signal_data_update_all.connect(self.update_data_all)
         # self.signal_net_connected.connect(self.connected_net)
 
         # self.__rodUpdate.start()
-        self.__rodUpdataT.start(1)
+        self.__rodUpdataT.start(int(t*1000))
         self.__network.start()
 
 
         
+        # todo: 增加模型变量修改，及确认键
+        # todo: 干扰量加入。
 
-        # self.resize(600,600)
+        self.resize(575,860)
+
         vbox=QtWidgets.QVBoxLayout()
 
         hbox1=QtWidgets.QHBoxLayout()
@@ -164,10 +188,10 @@ class MyWindow(QtWidgets.QWidget):
         self.y = [0]*400
         # print(len(self.y))
 
-        self.canvas_angle.axes.set_ylim((-150,150))
-        self.canvas_omega.axes.set_ylim((-150,150))
-        self.canvas_vector.axes.set_ylim((-150,150))
-        self.canvas_velocity.axes.set_ylim((-150,150))
+        self.canvas_angle.axes.set_ylim((-90,90))
+        self.canvas_omega.axes.set_ylim((-15,15))
+        self.canvas_vector.axes.set_ylim((-15,15))
+        self.canvas_velocity.axes.set_ylim((-15,15))
         # self.canvas_velocity.axes.set_yli
 
 
@@ -256,12 +280,19 @@ class MyWindow(QtWidgets.QWidget):
         # self.update_line_omega(0)
     def updateRod(self):
         # self.f=
-        self.__rod.setF(self.f)
+        # print(self.f)
+        # self.rod.setF(self.f)
+        # print(self.rod.getF())
         # self.parent.rodData=
-        data=self.__rod.update()
-        # print(data[3])
+        data=self.rod.update()
+        # test part start
+        # print("calculate data: ",data)
+        # test part end
         self.signal_data_update_all.emit(data)
         # sleep(0.001)
+    def networdConnected(self):
+        self.rod.setAngle(5)
+        self.rod.setV(0.5)
 
 def string2list(s):
     # print("s:",s)
@@ -276,7 +307,7 @@ def string2list(s):
 if __name__ == "__main__":
     # communication_flag=True
     qApp = QtWidgets.QApplication(sys.argv)
-    t=0.0001
+    t=0.005
     rod=Rod(5,1,t)
 
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -289,6 +320,6 @@ if __name__ == "__main__":
 
 
 
-    aw = MyWindow(rod,s)
+    aw = MyWindow(rod,s,t)
     aw.show()
     sys.exit(qApp.exec_())

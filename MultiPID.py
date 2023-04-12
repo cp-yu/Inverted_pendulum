@@ -5,7 +5,7 @@ class PID:
         self.__KI = i
         self.__KD = d
 
-        self.__enabled = True  #是否使能此级闭环
+        self.__enabled = False  #是否使能此级闭环
 
         self.__ref = 0.0        #调节量的期望值（初始偏差）,初始化OFFSET
         self.__fdb = 0.0        #调节量的反馈值（调节后的偏差） ，初始化0 
@@ -33,16 +33,28 @@ class PID:
     
     def setKP(self,kp):
         self.__KP = kp
+        if  self.__KP!=0 or self.__KI !=0 or self.__KD!=0:
+            self.__enabled = True
+        else :
+            self.__enabled = False
     def getKP(self):
         return self.__KP
 
     def setKI(self,ki):
         self.__KI = ki
+        if  self.__KP!=0 or self.__KI !=0 or self.__KD!=0:
+            self.__enabled = True
+        else :
+            self.__enabled = False
     def getKI(self):
         return self.__KI
 
     def setKD(self,kd):
         self.__KD = kd
+        if  self.__KP!=0 or self.__KI !=0 or self.__KD!=0:
+            self.__enabled = True
+        else :
+            self.__enabled = False
     def getKD(self):
         return self.__KD
 
@@ -111,7 +123,11 @@ class MultiPID:
         self.res = [0.0,0.0,0.0,0.0]     #四个环的输出
         self.angOut = 0.0                #摆角两个环综合输出
         self.dispOut = 0.0               #位移两个环综合输出
-        
+    def reset(self):
+        self.PID_angPos.clear()
+        self.PID_dispPos.clear()
+        self.PID_angSpd.clear()
+        self.PID_dispSpd.clear()
     def calculate(self,rod): #rod is list of four float: vector, velocity, angle, omega
         #位移位置环
         if self.PID_dispPos.isEnable():

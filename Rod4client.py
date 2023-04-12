@@ -55,7 +55,7 @@ class Rod:
     def setX(self,X):
         self.__x = X 
     def getX(self):
-        return  self.__x
+        return  self.__x*100
     def setPos(self,pos):
         self.__pos = pos 
     def getPos(self):
