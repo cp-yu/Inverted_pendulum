@@ -121,45 +121,51 @@ class Rod:
         l = self.__l
         g = 9.8
         F = self.__F
+        # test part start
+        # print(self.__F)
+        # test part end
         t = self.__t
-        # part 1:
-        # 更新位移 & 角度
-        self.__x += (self.__v*t + 0.5*self.__a*t*t)
-        self.__angle += (self.__w*t + 0.5*self.__A*t*t)
-        
-        # 更新速度 & 角速度
-        self.__v += self.__a * t
-        self.__w += self.__A * t
-        self.__vBox= self.__v
+        select=1
+        if select==1:
+                
+            # part 1:
+            # 更新位移 & 角度
+            self.__x += (self.__v*t + 0.5*self.__a*t*t)
+            self.__angle += (self.__w*t + 0.5*self.__A*t*t)
+            
+            # 更新速度 & 角速度
+            self.__v += self.__a * t
+            self.__w += self.__A * t
+            self.__vBox= self.__v
 
-        temp1 =J+m*l*l
-        temp2 = m*m*l*l
-        COS = math.cos(math.radians(self.__angle))
-        SIN = math.sin(math.radians(self.__angle))
-        W = self.__w
+            temp1 =J+m*l*l
+            temp2 = m*m*l*l
+            COS = math.cos(math.radians(self.__angle))
+            SIN = math.sin(math.radians(self.__angle))
+            W = self.__w
 
-        # 更新加速度 & 角加速度
-        self.__a = (temp1*F + m*l*temp1*SIN*W*W - temp2*SIN*COS) / (temp1*(M+m) - temp2*COS*COS)
-        self.__A = (m*l*COS*F + temp2*SIN*COS*W*W - (M+m)*m*l*g*SIN) / (temp2*COS*COS - (M+m)*temp1)
+            # 更新加速度 & 角加速度
+            self.__a = (temp1*F + m*l*temp1*SIN*W*W - temp2*SIN*COS) / (temp1*(M+m) - temp2*COS*COS)
+            self.__A = (m*l*COS*F + temp2*SIN*COS*W*W - (M+m)*m*l*g*SIN) / (temp2*COS*COS - (M+m)*temp1)
 
-        # part 2:
-        # SIN = math.sin(math.radians(self.__angle))
-        # COS = math.cos(math.radians(self.__angle))
+        elif select==2:
+            SIN = math.sin(math.radians(self.__angle))
+            COS = math.cos(math.radians(self.__angle))
 
-        # self.__cm += (self.__v*t+0.5*self.__a*t*t)
-        # self.__angle += (self.__w*t+0.5*self.__A*t*t)
-        # self.__x = self.__cm-SIN*self.__l/(self.__M+self.__m)
-        
+            self.__cm += (self.__v*t+0.5*self.__a*t*t)
+            self.__angle += (self.__w*t+0.5*self.__A*t*t)
+            self.__x = self.__cm-SIN*self.__l/(self.__M+self.__m)
+            
 
-        # self.__v += self.__a*t
-        # self.__w += self.__A*t
-        # self.__vBox=self.__v-COS*self.__l*self.__m*self.__w/(self.__M)
+            self.__v += self.__a*t
+            self.__w += self.__A*t
+            self.__vBox=self.__v-COS*self.__l*self.__m*self.__w/(self.__M)
 
-        # COS = math.cos(math.radians(self.__angle))
-        # SIN = math.sin(math.radians(self.__angle))
+            COS = math.cos(math.radians(self.__angle))
+            SIN = math.sin(math.radians(self.__angle))
 
-        # self.__a=(self.__F)/(self.__M+self.__m)
-        # self.__A=(0.5*SIN*g*m-COS*self.__F)*l/self.__J
+            self.__a=(self.__F)/(self.__M+self.__m)
+            self.__A=(0.5*SIN*g*m-COS*self.__F)*l/self.__J
 
         return [self.__x,self.__vBox,self.__a,self.__angle,self.__w,self.__A]
         

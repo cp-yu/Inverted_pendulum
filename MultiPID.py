@@ -124,6 +124,9 @@ class MultiPID:
         self.angOut = 0.0                #摆角两个环综合输出
         self.dispOut = 0.0               #位移两个环综合输出
     def reset(self):
+        self.res = [0.0,0.0,0.0,0.0]     #四个环的输出
+        self.angOut = 0.0                #摆角两个环综合输出
+        self.dispOut = 0.0               #位移两个环综合输出
         self.PID_angPos.clear()
         self.PID_dispPos.clear()
         self.PID_angSpd.clear()

@@ -55,6 +55,9 @@ class ThreadNetwork(QThread):
         self.communication_wait_flag=True
         self.__socket_net = socket_net
         self.__rod=rod
+        # test part start
+        # print(self.__rod)
+        # test part end
         # self.__rodData=rodData
         self.__f=f
         # self.parent.rod.setAngle(5)
@@ -71,24 +74,36 @@ class ThreadNetwork(QThread):
             # data=self.__rodData[[0,1,3,4]]
             data=self.__rod.getSendData()
             # print("send data: ",data)
-            self.__connect2client.send(str(data).encode("utf-8")) 
-            recvData=self.__connect2client.recv(1024).decode()
-            if recvData=="reset":
+            try:
+                self.__connect2client.send(str(data).encode("utf-8")) 
+                recvData=self.__connect2client.recv(1024).decode()
+            except WindowsError:
+                pass
+            if recvData.startswith("reset"):
                 self.__rod.reset()
                 self.__rod.setAngle(5)
                 self.__rod.setV(0.5)
             else:
-
-                self.__f=float()
+                try:
+                    self.__f=float(recvData)
+                except ValueError:
+                    self.__f=0
+                # test part start
+                # print(self.__f)
+                # test part end
                 self.__rod.setF(self.__f)
             sleep(0.01)
             # print("recv f: ",self.__f)
+# not used
 class ThreadRod(QThread):
     signal_data_update=pyqtSignal(str,float)
     signal_data_update_all=pyqtSignal(list)
     def __init__(self,rod,parent):
         super().__init__()
         self.__rod=rod
+        # test part start
+        # print(self.__rod)
+        # test part end
         # self.parent=parent
     def run(self):
         while True:
@@ -110,6 +125,10 @@ class MyWindow(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self)
 
         self.rod=rod
+        # test part start
+        # print(rod)
+        # print(self.rod)
+        # test part end
         self.f=0 # 隐式使用
         self.rodData=[0,0,0,0,0,0] # 隐式使用
         
@@ -123,6 +142,10 @@ class MyWindow(QtWidgets.QWidget):
         self.velocity=[]
         self.angle=[]
         self.omega=[]
+        self.vectorMax=0
+        self.velocityMax=0
+        self.angleMax=0
+        self.omegaMax=0
 
         self.__rodUpdataT.timeout.connect(self.updateRod)
         self.signal_data_update.connect(self.update_data)
@@ -190,7 +213,7 @@ class MyWindow(QtWidgets.QWidget):
 
         self.canvas_angle.axes.set_ylim((-90,90))
         self.canvas_omega.axes.set_ylim((-15,15))
-        self.canvas_vector.axes.set_ylim((-15,15))
+        self.canvas_vector.axes.set_ylim((-150,150))
         self.canvas_velocity.axes.set_ylim((-15,15))
         # self.canvas_velocity.axes.set_yli
 
@@ -215,6 +238,8 @@ class MyWindow(QtWidgets.QWidget):
     def update_line_vector(self,i):
         # 400 是 self.x 的长度
         self.vector.append(self.rodData[0])
+        # self.vectorMax=max(self.vectorMax,self.rodData[0])
+        # self.
         if(len(self.vector)<400):
             vector=np.pad(self.vector,((400-len(self.vector),0)),"constant",constant_values=0)
         else:
