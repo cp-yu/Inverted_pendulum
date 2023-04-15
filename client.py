@@ -296,6 +296,7 @@ class Ui_Form(QtWidgets.QWidget):
         self.omega_p.setText(_translate("Form", "0"))
         self.omega_i.setText(_translate("Form", "0"))
         self.omega_d.setText(_translate("Form", "0"))
+        self.resetbutton.setText(_translate("Form", "重置"))
 
     def changePID(self):
         # vector
