@@ -133,7 +133,7 @@ class MultiPID:
         self.PID_dispSpd.clear()
     def setT(self, t):
         # test part start
-        print(t)
+        # print(t)
         # test part end
         self.PID_angPos.setT(t)
         self.PID_dispPos.setT(t)

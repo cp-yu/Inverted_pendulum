@@ -90,6 +90,15 @@ class Rod:
         return [self.__x, self.__a, self.__angle, self.__A]
     def getSendData(self):
         return [self.__x, self.__vBox, self.__angle, self.__A]
+
+    def addVectorDisturb(self,dx):
+        self.__x+=dx
+    def addVelocityDisturb(self,dv):
+        self.__v+=dv
+    def addAngleDisturb(self,da):
+        self.__angle+=da
+    def addOmegaDisturb(self,dw):
+        self.__w+=dw
     
     def reset(self):
         self.__A = 0

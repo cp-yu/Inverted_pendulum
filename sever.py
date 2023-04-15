@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QSpinBox
 from PyQt5.QtCore import pyqtSignal,QThread,QTimer,QSize
 import socket
@@ -211,10 +212,103 @@ class MyWindow(QtWidgets.QWidget):
         vbox.addLayout(hbox4)
         vbox.addStretch(2)
         
-        hbox=QtWidgets.QVBoxLayout()
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout()
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.label = QtWidgets.QLabel(self)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName("label")
+        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
+        self.rodMassEdit = QtWidgets.QLineEdit(self)
+        self.rodMassEdit.setObjectName("rodMassEdit")
+        self.gridLayout_2.addWidget(self.rodMassEdit, 0, 1, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self)
+        self.label_2.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
+        self.rodLengthEdit = QtWidgets.QLineEdit(self)
+        self.rodLengthEdit.setObjectName("rodLengthEdit")
+        self.gridLayout_2.addWidget(self.rodLengthEdit, 1, 1, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self)
+        self.label_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout_2.addWidget(self.label_3, 2, 0, 1, 1)
+        self.carMassEdit = QtWidgets.QLineEdit(self)
+        self.carMassEdit.setObjectName("carMassEdit")
+        self.gridLayout_2.addWidget(self.carMassEdit, 2, 1, 1, 1)
+        self.horizontalLayout_2.addLayout(self.gridLayout_2)
+        self.modelButton = QtWidgets.QPushButton(self)
+        self.modelButton.setObjectName("modelButton")
+        self.horizontalLayout_2.addWidget(self.modelButton)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.gridLayout = QtWidgets.QGridLayout()
+        self.gridLayout.setObjectName("gridLayout")
+        self.label_4 = QtWidgets.QLabel(self)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout.addWidget(self.label_4, 0, 0, 1, 1)
+        self.vectorDisturbEdit = QtWidgets.QLineEdit(self)
+        self.vectorDisturbEdit.setObjectName("vectorDisturbEdit")
+        self.gridLayout.addWidget(self.vectorDisturbEdit, 0, 1, 1, 1)
+        self.label_5 = QtWidgets.QLabel(self)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 1, 0, 1, 1)
+        self.velocityDisturbEdit = QtWidgets.QLineEdit(self)
+        self.velocityDisturbEdit.setObjectName("velocityDisturbEdit")
+        self.gridLayout.addWidget(self.velocityDisturbEdit, 1, 1, 1, 1)
+        self.label_6 = QtWidgets.QLabel(self)
+        self.label_6.setObjectName("label_6")
+        self.gridLayout.addWidget(self.label_6, 2, 0, 1, 1)
+        self.angleDisturbEdit = QtWidgets.QLineEdit(self)
+        self.angleDisturbEdit.setObjectName("angleDisturbEdit")
+        self.gridLayout.addWidget(self.angleDisturbEdit, 2, 1, 1, 1)
+        self.label_7 = QtWidgets.QLabel(self)
+        self.label_7.setObjectName("label_7")
+        self.gridLayout.addWidget(self.label_7, 3, 0, 1, 1)
+        self.omegaDisturbEdit = QtWidgets.QLineEdit(self)
+        self.omegaDisturbEdit.setObjectName("omegaDisturbEdit")
+        self.gridLayout.addWidget(self.omegaDisturbEdit, 3, 1, 1, 1)
+        self.horizontalLayout.addLayout(self.gridLayout)
+        self.disturbButton = QtWidgets.QPushButton(self)
+        self.disturbButton.setObjectName("disturbButton")
+        self.horizontalLayout.addWidget(self.disturbButton)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+
+        hbox=QtWidgets.QHBoxLayout()
         hbox.addLayout(vbox)
+        hbox.addLayout(self.verticalLayout_2)
 
         self.setLayout(hbox)
+
+        self.label.setText("杆质量")
+        self.label_2.setText("杆长度")
+        self.label_3.setText("车质量")
+        self.modelButton.setText("模型设置")
+        self.label_4.setText("位移扰动")
+        self.label_5.setText("速度扰动")
+        self.label_6.setText("角度扰动")
+        self.label_7.setText("角速度扰动")
+        self.disturbButton.setText("扰动设置")
+
+        self.rodLengthEdit.setText("1")
+        self.rodMassEdit.setText("5")
+        self.carMassEdit.setText("5000")
+
+        # 扰动ui显示设置
+        self.vectorDisturbEdit.setText("0")
+        self.velocityDisturbEdit.setText("0")
+        self.angleDisturbEdit.setText("0")
+        self.omegaDisturbEdit.setText("0")
+
+
+        # ui connect
+        self.modelButton.clicked.connect(self.setModel)
+        self.disturbButton.clicked.connect(self.addDisturb)
 
 
         self.x = [i for i in range(self.saveCount)]                                     #画图
@@ -245,6 +339,7 @@ class MyWindow(QtWidgets.QWidget):
     
     # def connected_net(self,conn):
     #     self.__conn=conn
+
 
     def update_line_vector(self,i):
         # self.saveCount 是 self.x 的长度
@@ -327,8 +422,20 @@ class MyWindow(QtWidgets.QWidget):
         self.signal_data_update_all.emit(data)
         # sleep(0.001)
     def networdConnected(self):
-        self.rod.setAngle(5)
-        self.rod.setV(0.5)
+        # self.rod.setAngle(5)
+        # self.rod.setV(0.5)
+        pass
+    
+    def setModel(self):
+        self.rod.setm(float(self.rodMassEdit.text()))
+        self.rod.setM(float(self.carMassEdit.text()))
+        self.rod.setL(float(self.rodLengthEdit.text()))
+    def addDisturb(self):
+        self.rod.addVectorDisturb(float(self.vectorDisturbEdit.text()))
+        self.rod.addVelocityDisturb(float(self.velocityDisturbEdit.text()))
+        self.rod.addAngleDisturb(float(self.angleDisturbEdit.text()))
+        self.rod.addOmegaDisturb(float(self.omegaDisturbEdit.text()))
+        
 
 def string2list(s):
     # print("s:",s)
