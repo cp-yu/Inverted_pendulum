@@ -6,7 +6,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 from PyQt5.QtWidgets import QSpinBox
-from PyQt5.QtCore import pyqtSignal,QThread,QTimer
+from PyQt5.QtCore import pyqtSignal,QThread,QTimer,QSize
 import socket
 from time import sleep
 from RodClass import Rod
@@ -129,6 +129,9 @@ class MyWindow(QtWidgets.QWidget):
         # print(rod)
         # print(self.rod)
         # test part end
+        
+        self.saveCount=4000
+        self.maxSaveCount=40000
         self.f=0 # 隐式使用
         self.rodData=[0,0,0,0,0,0] # 隐式使用
         
@@ -171,6 +174,7 @@ class MyWindow(QtWidgets.QWidget):
         hbox1=QtWidgets.QHBoxLayout()
         self.label_vector=QtWidgets.QLabel("vector",self)
         self.canvas_vector=MyCanvas(self,width=15,height=15,dpi=100)
+        self.canvas_vector.setMinimumSize(QSize(512, 205))
         hbox1.addWidget(self.label_vector)
         hbox1.addWidget(self.canvas_vector)
         hbox1.addStretch()
@@ -178,6 +182,7 @@ class MyWindow(QtWidgets.QWidget):
         hbox2=QtWidgets.QHBoxLayout()
         self.label_velocity=QtWidgets.QLabel("velocity",self)
         self.canvas_velocity=MyCanvas(self,width=15,height=15,dpi=100)
+        self.canvas_velocity.setMinimumSize(QSize(512, 205))
         hbox2.addWidget(self.label_velocity)
         hbox2.addWidget(self.canvas_velocity)
         hbox2.addStretch()
@@ -185,6 +190,7 @@ class MyWindow(QtWidgets.QWidget):
         hbox3=QtWidgets.QHBoxLayout()
         self.label_angle=QtWidgets.QLabel("angle",self)
         self.canvas_angle=MyCanvas(self,width=15,height=15,dpi=100)
+        self.canvas_angle.setMinimumSize(QSize(512, 205))
         hbox3.addWidget(self.label_angle)
         hbox3.addWidget(self.canvas_angle)
         hbox3.addStretch()
@@ -192,6 +198,7 @@ class MyWindow(QtWidgets.QWidget):
         hbox4=QtWidgets.QHBoxLayout()
         self.label_omega=QtWidgets.QLabel("omega",self)
         self.canvas_omega=MyCanvas(self,width=15,height=15,dpi=100)
+        self.canvas_omega.setMinimumSize(QSize(512, 205))
         hbox4.addWidget(self.label_omega)
         hbox4.addWidget(self.canvas_omega)
         hbox4.addStretch()
@@ -203,12 +210,16 @@ class MyWindow(QtWidgets.QWidget):
         vbox.addLayout(hbox3)
         vbox.addLayout(hbox4)
         vbox.addStretch(2)
-        self.setLayout(vbox)
+        
+        hbox=QtWidgets.QVBoxLayout()
+        hbox.addLayout(vbox)
+
+        self.setLayout(hbox)
 
 
-        self.x = [i for i in range(400)]                                     #画图
+        self.x = [i for i in range(self.saveCount)]                                     #画图
         # self.p = 0.0
-        self.y = [0]*400
+        self.y = [0]*self.saveCount
         # print(len(self.y))
 
         self.canvas_angle.axes.set_ylim((-90,90))
@@ -236,14 +247,14 @@ class MyWindow(QtWidgets.QWidget):
     #     self.__conn=conn
 
     def update_line_vector(self,i):
-        # 400 是 self.x 的长度
+        # self.saveCount 是 self.x 的长度
         self.vector.append(self.rodData[0])
         # self.vectorMax=max(self.vectorMax,self.rodData[0])
         # self.
-        if(len(self.vector)<400):
-            vector=np.pad(self.vector,((400-len(self.vector),0)),"constant",constant_values=0)
+        if(len(self.vector)<self.saveCount):
+            vector=np.pad(self.vector,((self.saveCount-len(self.vector),0)),"constant",constant_values=0)
         else:
-            vector=self.vector[-400:]
+            vector=self.vector[-self.saveCount:]
             # print(set(vector))
         # self.y = np.sin(self.x + 0)
         
@@ -252,26 +263,26 @@ class MyWindow(QtWidgets.QWidget):
         return [self.line_vector]
     def update_line_velocity(self,i):
         self.velocity.append(self.rodData[1])
-        if(len(self.velocity)<400):
-            velocity=np.pad(self.velocity,((400-len(self.velocity),0)),"constant",constant_values=0)
+        if(len(self.velocity)<self.saveCount):
+            velocity=np.pad(self.velocity,((self.saveCount-len(self.velocity),0)),"constant",constant_values=0)
         else:
-            velocity=self.velocity[-400:]
+            velocity=self.velocity[-self.saveCount:]
         self.line_velocity.set_ydata(velocity)
         return [self.line_velocity]
     def update_line_angle(self,i):
         self.angle.append(self.rodData[3])
-        if(len(self.angle)<400):
-            angle=np.pad(self.angle,((400-len(self.angle),0)),"constant",constant_values=0)
+        if(len(self.angle)<self.saveCount):
+            angle=np.pad(self.angle,((self.saveCount-len(self.angle),0)),"constant",constant_values=0)
         else:
-            angle=self.angle[-400:]
+            angle=self.angle[-self.saveCount:]
         self.line_angle.set_ydata(angle)
         return [self.line_angle]
     def update_line_omega(self,i):
         self.omega.append(self.rodData[4])
-        if(len(self.omega)<400):
-            omega=np.pad(self.omega,((400-len(self.omega),0)),"constant",constant_values=0)
+        if(len(self.omega)<self.saveCount):
+            omega=np.pad(self.omega,((self.saveCount-len(self.omega),0)),"constant",constant_values=0)
         else:
-            omega=self.omega[-400:]
+            omega=self.omega[-self.saveCount:]
         self.line_omega.set_ydata(omega)
         return [self.line_omega]
 
@@ -290,11 +301,11 @@ class MyWindow(QtWidgets.QWidget):
     def update_data_all(self,rodData):
         self.rodData =rodData
         # l=rodData[[0,1,3,4]]
-        if len(self.vector)>=6000:
-            self.vector=self.vector[-400:]
-            self.velocity=self.velocity[-400:]
-            self.angle=self.angle[-400:]
-            self.omega=self.omega[-400:]
+        if len(self.vector)>=self.maxSaveCount:
+            self.vector=self.vector[-self.saveCount:]
+            self.velocity=self.velocity[-self.saveCount:]
+            self.angle=self.angle[-self.saveCount:]
+            self.omega=self.omega[-self.saveCount:]
         # self.update_line_vector(rodData[0])
         # self.update_line_velocity(rodData[1])
         # self.update_line_angle(rodData[3])

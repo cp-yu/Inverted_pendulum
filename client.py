@@ -13,6 +13,7 @@ import socket
 # from RodClass_copy import Rod
 from Rod4client import Rod
 from MultiPID import MultiPID
+import time
 
 
 class RodWidget(QWidget):
@@ -107,7 +108,7 @@ class RodWidget(QWidget):
         # painter.end()
 
 class ThreadNetworkRecv(QThread):
-    signal_recv_data= pyqtSignal(list)
+    signal_recv_data= pyqtSignal(list,float,float)
     def __init__(self,socket_net):
         super().__init__()
         self.__socket_net = socket_net
@@ -115,6 +116,8 @@ class ThreadNetworkRecv(QThread):
         self.lastdata=""
         # test part end
         self.connected=False
+        self.lastRecvTime=0
+        self.curRecvTime=0
     def run(self):
         global communication_flag,address # true is recv status,false is send status
         while True:
@@ -127,6 +130,8 @@ class ThreadNetworkRecv(QThread):
                     pass
             try:
                 data=self.__socket_net.recv(1024).decode()
+                self.lastRecvTime=self.curRecvTime
+                self.curRecvTime=time.time()
             except WindowsError:
                 # sys.exit()
                 pass
@@ -135,7 +140,7 @@ class ThreadNetworkRecv(QThread):
             # print(data)
                 # self.lastdata=data
             # test part end
-            self.signal_recv_data.emit(string2list(data))# data: vector,velocity,angle,omega
+            self.signal_recv_data.emit(string2list(data),self.curRecvTime,self.lastRecvTime)# data: vector,velocity,angle,omega
             # print(data)
             communication_flag=False
 class ThreadNetworkSend(QThread):
@@ -152,6 +157,7 @@ class ThreadNetworkSend(QThread):
         cal_f=self.__pids.calculate(self.__data)
         # test part start
         # print(cal_f)
+        # print(self.__pids.)
         # test part end
         self.__socket_net.send(str(cal_f).encode("utf-8"))
         communication_flag=True
@@ -159,7 +165,10 @@ class Ui_Form(QtWidgets.QWidget):
     def __init__(self,rod,path,pids) -> None:
         super().__init__()
         self.setupUi(self,rod)
+
         self.autoResetFlag=True
+        self.autoInterval=True
+
         self.__rod=rod
         self.pids=pids
         self.path=path
@@ -332,13 +341,15 @@ class Ui_Form(QtWidgets.QWidget):
         self.path.send("reset".encode("utf-8"))
         self.pids.reset()
 
-    def receiveData(self,data):
+    def receiveData(self,data,curtime,lasttime):
         # self.rodWidget.
         #picture update
         if self.autoResetFlag and (data[2]>90 or data[2] <-90):
             self.reset()
             # data=[0,0,0,0]
             return
+        if self.autoInterval and (lasttime>100):
+            self.pids.setT(curtime-lasttime)
         self.__rod.setData(data)
         #todo: pid process
         self.__netSend.setData(data)

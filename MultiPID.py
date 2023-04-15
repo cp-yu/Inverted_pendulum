@@ -131,6 +131,14 @@ class MultiPID:
         self.PID_dispPos.clear()
         self.PID_angSpd.clear()
         self.PID_dispSpd.clear()
+    def setT(self, t):
+        # test part start
+        print(t)
+        # test part end
+        self.PID_angPos.setT(t)
+        self.PID_dispPos.setT(t)
+        self.PID_angSpd.setT(t)
+        self.PID_dispSpd.setT(t)
     def calculate(self,rod): #rod is list of four float: vector, velocity, angle, omega
         #位移位置环
         if self.PID_dispPos.isEnable():

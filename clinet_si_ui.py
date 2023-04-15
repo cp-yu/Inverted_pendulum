@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\yunxin\Desktop\invPen\untitled.ui'
+# Form implementation generated from reading ui file 'c:\Users\yunxin\Desktop\invPen\clinet_si.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
