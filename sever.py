@@ -82,8 +82,8 @@ class ThreadNetwork(QThread):
                 pass
             if recvData.startswith("reset"):
                 self.__rod.reset()
-                self.__rod.setAngle(5)
-                self.__rod.setV(0.5)
+                # self.__rod.setAngle(5)
+                # self.__rod.setV(0.5)
             else:
                 try:
                     self.__f=float(recvData)
@@ -422,9 +422,9 @@ class MyWindow(QtWidgets.QWidget):
         self.signal_data_update_all.emit(data)
         # sleep(0.001)
     def networdConnected(self):
-        # self.rod.setAngle(5)
-        # self.rod.setV(0.5)
-        pass
+        self.rod.setAngle(5)
+        self.rod.setV(0.5)
+        # pass
     
     def setModel(self):
         self.rod.setm(float(self.rodMassEdit.text()))

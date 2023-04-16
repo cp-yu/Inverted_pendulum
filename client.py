@@ -159,7 +159,10 @@ class ThreadNetworkSend(QThread):
         # print(cal_f)
         # print(self.__pids.)
         # test part end
-        self.__socket_net.send(str(cal_f).encode("utf-8"))
+        try:
+            self.__socket_net.send(str(cal_f).encode("utf-8"))
+        except WindowsError:
+            pass
         communication_flag=True
 class Ui_Form(QtWidgets.QWidget):
     def __init__(self,rod,path,pids) -> None:
